@@ -26,6 +26,6 @@ public class CoffeeController {
             @RequestParam(required = false, defaultValue = "espresso") String type,
             @RequestParam(required = false, defaultValue = "medium") String size
     ) {
-        return new Coffee(id, type, size);  // Возвращаем объект Coffee как JSON
+        return new Coffee(id, type, size); // Возвращаем объект Coffee как JSON
     }
 }
