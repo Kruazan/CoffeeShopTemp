@@ -6,7 +6,6 @@ public class Coffee {
     private String type;
     private String size;
 
-    // Конструкторы
     /** nothing now. */
     public Coffee() {}
 

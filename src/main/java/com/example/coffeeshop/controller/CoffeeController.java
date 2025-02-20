@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 /** nothing now. */
 @RestController
 public class CoffeeController {
-    // GET endpoint с Query параметрами, возвращающий JSON объект
     /** nothing now. */
     @GetMapping("/coffees")
     public Coffee getCoffees(
