@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /** nothing now. */
 @SpringBootApplication
-public class CoffeeshopApplication { /** no. */
+public class CoffeeShopApplication { /** no. */
     public static void main(String[] args) {
-        SpringApplication.run(CoffeeshopApplication.class, args);
+        SpringApplication.run(CoffeeShopApplication.class, args);
     }
 }
