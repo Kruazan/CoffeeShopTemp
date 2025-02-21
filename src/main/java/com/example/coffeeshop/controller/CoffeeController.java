@@ -15,7 +15,7 @@ public class CoffeeController {
             @RequestParam(required = false, defaultValue = "all") String type,
             @RequestParam(required = false, defaultValue = "medium") String size
     ) {
-        return new Coffee(null, type, size);  // Возвращаем объект Coffee как JSON
+        return new Coffee(null, type, size);
     }
 
     /** Processing path params. */
@@ -25,6 +25,6 @@ public class CoffeeController {
             @RequestParam(required = false, defaultValue = "espresso") String type,
             @RequestParam(required = false, defaultValue = "medium") String size
     ) {
-        return new Coffee(id, type, size); // Возвращаем объект Coffee как JSON
+        return new Coffee(id, type, size);
     }
 }
