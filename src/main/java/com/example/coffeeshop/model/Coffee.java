@@ -1,15 +1,15 @@
 package com.example.coffeeshop.model;
 
-/** nothing now. */
+/** Coffee model. */
 public class Coffee {
     private Long id;
     private String type;
     private String size;
 
-    /** nothing now. */
+    /** Constructor. */
     public Coffee() {}
 
-    /** nothing now. */
+    /** Constructor with params. */
     public Coffee(Long id, String type, String size) {
         this.id = id;
         this.type = type;

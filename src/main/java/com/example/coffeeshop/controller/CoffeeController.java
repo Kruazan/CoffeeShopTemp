@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** nothing now. */
+/** Controller. */
 @RestController
 public class CoffeeController {
-    /** nothing now. */
+    /** Params processing . */
     @GetMapping("/coffees")
     public Coffee getCoffees(
             @RequestParam(required = false, defaultValue = "all") String type,
@@ -18,7 +18,7 @@ public class CoffeeController {
         return new Coffee(null, type, size);  // Возвращаем объект Coffee как JSON
     }
 
-    /** nothing now. */
+    /** Processing path params. */
     @GetMapping("/coffees/{id}")
     public Coffee getCoffee(
             @PathVariable("id") Long id,
