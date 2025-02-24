@@ -1,6 +1,11 @@
 package com.example.coffeeshop.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /** Coffee model. */
+@Setter
+@Getter
 public class Coffee {
     private Long id;
     private String name;
@@ -15,35 +20,4 @@ public class Coffee {
         this.price = price;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
 }
