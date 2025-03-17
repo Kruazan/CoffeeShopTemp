@@ -1,6 +1,5 @@
 package com.example.coffeeshop.dto;
 
-import com.example.coffeeshop.model.Coffee;
 import java.util.List;
 import lombok.Data;
 
@@ -11,6 +10,6 @@ public class UserDto {
     private String phoneNumber;
     private String name;
     private String passwordHash;
-    private List<Coffee> orders;  // Список ID заказов
-    private List<Coffee> favorites;  // Список ID любимых кофе
+    private List<CoffeeDto> orders;  // Список ID заказов
+    private List<CoffeeDto> favorites;  // Список ID любимых кофе
 }

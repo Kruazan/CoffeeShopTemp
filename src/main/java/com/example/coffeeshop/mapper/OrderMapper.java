@@ -10,10 +10,12 @@ import org.springframework.stereotype.Component;
 public class OrderMapper {
 
     private final UserMapper userMapper;
+    private final CoffeeMapper coffeeMapper;
 
     /** Constructor. */
-    public OrderMapper(UserMapper userMapper) {
+    public OrderMapper(UserMapper userMapper, CoffeeMapper coffeeMapper) {
         this.userMapper = userMapper;
+        this.coffeeMapper = coffeeMapper;
     }
 
     /** To dto also. */
@@ -21,7 +23,7 @@ public class OrderMapper {
         DisplayOrderDto dto = new DisplayOrderDto();
         dto.setId(order.getId());
         dto.setUser(userMapper.toDisplayUserDto(order.getUser()));
-        dto.setCoffees(order.getCoffees());
+        dto.setCoffees(coffeeMapper.toDto(order.getCoffees()));
         dto.setNotes(order.getNotes());
         return dto;
     }

@@ -2,6 +2,7 @@ package com.example.coffeeshop.mapper;
 
 import com.example.coffeeshop.dto.CoffeeDto;
 import com.example.coffeeshop.model.Coffee;
+import java.util.List;
 import org.springframework.stereotype.Component;
 
 /** Coffee mapper. */
@@ -16,6 +17,13 @@ public class CoffeeMapper {
         dto.setType(coffee.getType());
         dto.setPrice(coffee.getPrice());
         return dto;
+    }
+
+    /** To dto. */
+    public List<CoffeeDto> toDto(List<Coffee> coffees) {
+        return coffees.stream()
+                .map(this::toDto)
+                .toList();
     }
 
     /** To entity. */

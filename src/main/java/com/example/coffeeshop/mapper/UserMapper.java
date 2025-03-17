@@ -4,12 +4,20 @@ import com.example.coffeeshop.dto.DisplayUserDto;
 import com.example.coffeeshop.dto.UserDto;
 import com.example.coffeeshop.model.Coffee;
 import com.example.coffeeshop.model.User;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
 /** Mapper. */
 @Component
 public class UserMapper {
+
+    private final CoffeeMapper coffeeMapper;
+
+    /** Constructor. */
+    public UserMapper(CoffeeMapper coffeeMapper) {
+        this.coffeeMapper = coffeeMapper;
+    }
 
     /** To Dto. */
     public UserDto toDto(User user) {
@@ -20,14 +28,14 @@ public class UserMapper {
         dto.setPasswordHash(user.getPassword());
 
         // Список ID заказов
-        List<Coffee> coffees = user.getOrders() != null ? user.getOrders().stream()
-                .flatMap(order -> order.getCoffees().stream()).toList() : null;
-        dto.setOrders(coffees);
+        List<Coffee> coffees = (user.getOrders() != null) ? user.getOrders().stream()
+                .flatMap(order -> order.getCoffees().stream()).toList() : Collections.emptyList();
+        dto.setOrders(coffeeMapper.toDto(coffees));
 
         // Список ID любимых кофе
-        List<Coffee> favoritesCoffees = user.getFavoriteCoffees() != null ? user.getFavoriteCoffees()
-                .stream().toList() : null;
-        dto.setFavorites(favoritesCoffees);
+        List<Coffee> favoritesCoffees = (user.getFavoriteCoffees() != null) ? user.getFavoriteCoffees()
+                : Collections.emptyList();
+        dto.setFavorites(coffeeMapper.toDto(favoritesCoffees));
         return dto;
     }
 
