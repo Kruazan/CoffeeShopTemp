@@ -6,6 +6,7 @@ import com.example.coffeeshop.model.Coffee;
 import com.example.coffeeshop.model.User;
 import com.example.coffeeshop.repository.CoffeeRepository;
 import com.example.coffeeshop.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -42,6 +43,7 @@ public class UserService {
     }
 
     /** Create User. */
+    @Transactional
     public UserDto createUser(UserDto userDto) throws NoSuchAlgorithmException {
         User user = userMapper.toEntity(userDto);
         String hashedPassword = hashPassword(userDto.getPasswordHash());
@@ -50,6 +52,7 @@ public class UserService {
     }
 
     /** Update user. */
+    @Transactional
     public UserDto updateUser(Long id, UserDto userDto) {
         return userRepository.findById(id)
                 .map(user -> {
@@ -69,6 +72,7 @@ public class UserService {
 
 
     /** Delete user. */
+    @Transactional
     public boolean deleteUser(Long id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
@@ -85,6 +89,7 @@ public class UserService {
     }
 
     /** Add to fav. */
+    @Transactional
     public void addCoffeeToFavorites(Long userId, Long coffeeId) {
         Optional<User> userOpt = userRepository.findById(userId);
         Optional<Coffee> coffeeOpt = coffeeRepository.findById(coffeeId);
@@ -103,6 +108,7 @@ public class UserService {
     }
 
     /** Delete from fav. */
+    @Transactional
     public void removeCoffeeFromFavorites(Long userId, Long coffeeId) {
         Optional<User> userOpt = userRepository.findById(userId);
         Optional<Coffee> coffeeOpt = coffeeRepository.findById(coffeeId);

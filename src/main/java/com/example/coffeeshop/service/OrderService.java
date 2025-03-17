@@ -10,6 +10,7 @@ import com.example.coffeeshop.repository.CoffeeRepository;
 import com.example.coffeeshop.repository.OrderRepository;
 import com.example.coffeeshop.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ public class OrderService {
     }
 
     /** Create order. */
+    @Transactional
     public DisplayOrderDto createOrder(CreateOrderDto createOrderDto) {
         User user = userRepository.findById(createOrderDto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -58,6 +60,7 @@ public class OrderService {
     }
 
     /** Delete order. */
+    @Transactional
     public boolean deleteOrder(Long id) {
         if (orderRepository.existsById(id)) {
             orderRepository.deleteById(id);
