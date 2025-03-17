@@ -19,9 +19,13 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("jakarta.persistence:jakarta.persistence-api")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework:spring-core")
+	implementation("org.postgresql:postgresql")
+	runtimeOnly("com.h2database:h2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-	runtimeOnly("mysql:mysql-connector-java")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 }
