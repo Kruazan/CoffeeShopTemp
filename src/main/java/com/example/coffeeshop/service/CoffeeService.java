@@ -9,31 +9,33 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/** Service. */
 @Service
 public class CoffeeService {
 
     private final CoffeeRepository coffeeRepository;
     private final CoffeeMapper coffeeMapper;
 
+    /** Constructor. */
     @Autowired
     public CoffeeService(CoffeeRepository coffeeRepository, CoffeeMapper coffeeMapper) {
         this.coffeeRepository = coffeeRepository;
         this.coffeeMapper = coffeeMapper;
     }
 
-    // Получить все кофе
+    /** Get all coffees. */
     public List<CoffeeDto> getAllCoffees() {
         return coffeeRepository.findAll().stream()
                 .map(coffeeMapper::toDto)
                 .toList();
     }
 
-    // Получить кофе по ID
+    /** Get coffee by id. */
     public Optional<CoffeeDto> getCoffeeById(Long id) {
         return coffeeRepository.findById(id).map(coffeeMapper::toDto);
     }
 
-    // Создать новый кофе
+    /** Create coffee. */
     public CoffeeDto createCoffee(CoffeeDto coffeeDto) {
         // Проверка на существование кофе с таким названием
         Optional<Coffee> existingCoffee = coffeeRepository.findByName(coffeeDto.getName());
@@ -45,7 +47,7 @@ public class CoffeeService {
         return coffeeMapper.toDto(coffeeRepository.save(coffee));
     }
 
-    // Обновить кофе
+    /** Update coffee info. */
     public CoffeeDto updateCoffee(Long id, CoffeeDto coffeeDto) {
         return coffeeRepository.findById(id)
                 .map(coffee -> {
@@ -63,8 +65,7 @@ public class CoffeeService {
                 .orElse(null); // Можно заменить на выброс исключения, если кофе не найден
     }
 
-
-    // Удалить кофе
+    /** Delete coffee. */
     public boolean deleteCoffee(Long id) {
         if (coffeeRepository.existsById(id)) {
             coffeeRepository.deleteById(id);

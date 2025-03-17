@@ -7,9 +7,11 @@ import com.example.coffeeshop.model.User;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
+/** Mapper. */
 @Component
 public class UserMapper {
 
+    /** To Dto. */
     public UserDto toDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
@@ -29,6 +31,7 @@ public class UserMapper {
         return dto;
     }
 
+    /** To dto. */
     public DisplayUserDto toDisplayUserDto(User user) {
         DisplayUserDto dto = new DisplayUserDto();
         dto.setId(user.getId());
@@ -37,6 +40,7 @@ public class UserMapper {
         return dto;
     }
 
+    /** To entity. */
     public User toEntity(UserDto dto) {
         User user = new User();
         user.setId(dto.getId());

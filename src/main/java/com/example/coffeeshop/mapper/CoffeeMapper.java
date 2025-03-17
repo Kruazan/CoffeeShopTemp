@@ -4,9 +4,11 @@ import com.example.coffeeshop.dto.CoffeeDto;
 import com.example.coffeeshop.model.Coffee;
 import org.springframework.stereotype.Component;
 
+/** Coffee mapper. */
 @Component
 public class CoffeeMapper {
 
+    /** To dto. */
     public CoffeeDto toDto(Coffee coffee) {
         CoffeeDto dto = new CoffeeDto();
         dto.setId(coffee.getId());
@@ -16,6 +18,7 @@ public class CoffeeMapper {
         return dto;
     }
 
+    /** To entity. */
     public Coffee toEntity(CoffeeDto dto) {
         Coffee coffee = new Coffee();
         coffee.setId(dto.getId());

@@ -9,13 +9,13 @@ import com.example.coffeeshop.model.User;
 import com.example.coffeeshop.repository.CoffeeRepository;
 import com.example.coffeeshop.repository.OrderRepository;
 import com.example.coffeeshop.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
-
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/** Service. */
 @Service
 public class OrderService {
 
@@ -24,6 +24,7 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final CoffeeRepository coffeeRepository;
 
+    /** Constructor. */
     @Autowired
     public OrderService(OrderRepository orderRepository, UserRepository userRepository, OrderMapper orderMapper, CoffeeRepository coffeeRepository) {
         this.orderRepository = orderRepository;
@@ -32,13 +33,11 @@ public class OrderService {
         this.coffeeRepository = coffeeRepository;
     }
 
-    // Создание нового заказа
+    /** Create order. */
     public DisplayOrderDto createOrder(CreateOrderDto createOrderDto) {
-        // Ищем пользователя
         User user = userRepository.findById(createOrderDto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // Ищем кофе
         if (createOrderDto.getCoffeesIds() == null || createOrderDto.getCoffeesIds().isEmpty()) {
             throw new EntityNotFoundException("Coffees not found");
         }
@@ -48,21 +47,17 @@ public class OrderService {
                 )
                 .toList();
 
-        // Создаём заказ
         Order order = new Order();
         order.setUser(user);
         order.setNotes(createOrderDto.getNotes());
-        order.setCoffees(coffees); // Добавляем один кофе (если нужен список кофе - можно изменить dto)
+        order.setCoffees(coffees);
 
-        // Сохраняем заказ
         Order savedOrder = orderRepository.save(order);
 
-        // Возвращаем DTO
         return orderMapper.toDisplayDto(savedOrder);
     }
 
-
-    // Удаление заказа
+    /** Delete order. */
     public boolean deleteOrder(Long id) {
         if (orderRepository.existsById(id)) {
             orderRepository.deleteById(id);
@@ -71,13 +66,13 @@ public class OrderService {
         return false; // Заказ с таким ID не найден
     }
 
-    // Получение заказа по ID
+    /** Get order by id. */
     public DisplayOrderDto getOrderById(Long id) {
         Optional<Order> orderOpt = orderRepository.findById(id);
         return orderOpt.map(orderMapper::toDisplayDto).orElse(null); // Если заказ найден, конвертируем в DTO
     }
 
-    // Получение всех заказов пользователя
+    /** Get all orders. */
     public List<DisplayOrderDto> getOrdersByUserId(Long userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
         return orderMapper.toDisplayDto(orders);

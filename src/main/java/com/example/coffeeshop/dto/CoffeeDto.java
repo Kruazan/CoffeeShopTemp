@@ -1,9 +1,8 @@
 package com.example.coffeeshop.dto;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
+/** Coffee Dto. */
 @Data
 public class CoffeeDto {
     private Long id;

@@ -2,7 +2,6 @@ package com.example.coffeeshop.controller;
 
 import com.example.coffeeshop.dto.CreateOrderDto;
 import com.example.coffeeshop.dto.DisplayOrderDto;
-import com.example.coffeeshop.dto.OrderDto;
 import com.example.coffeeshop.service.OrderService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +21,13 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    /** Constructor. */
     @Autowired
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
-    // Создание нового заказа
+    /** Create order. */
     @PostMapping
     public ResponseEntity<DisplayOrderDto> createOrder(@RequestBody CreateOrderDto createOrderDto) {
         DisplayOrderDto createdOrder = orderService.createOrder(createOrderDto);
@@ -37,7 +37,7 @@ public class OrderController {
         return ResponseEntity.badRequest().body(null); // Если пользователь не найден
     }
 
-    // Удаление заказа
+    /** Delete order. */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         if (orderService.deleteOrder(id)) {
@@ -46,7 +46,7 @@ public class OrderController {
         return ResponseEntity.notFound().build(); // Заказ не найден
     }
 
-    // Получение заказа по ID
+    /** Get order by id. */
     @GetMapping("/{id}")
     public ResponseEntity<DisplayOrderDto> getOrderById(@PathVariable Long id) {
         DisplayOrderDto displayOrderDto = orderService.getOrderById(id);
@@ -56,7 +56,7 @@ public class OrderController {
         return ResponseEntity.notFound().build(); // Заказ не найден
     }
 
-    // Получение всех заказов пользователя
+    /** Get order by user id. */
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<DisplayOrderDto>> getOrdersByUserId(@PathVariable Long userId) {
         List<DisplayOrderDto> orders = orderService.getOrdersByUserId(userId);

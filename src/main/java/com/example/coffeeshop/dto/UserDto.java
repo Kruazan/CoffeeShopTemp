@@ -1,12 +1,10 @@
 package com.example.coffeeshop.dto;
 
 import com.example.coffeeshop.model.Coffee;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.List;
+import lombok.Data;
 
+/** Dto. */
 @Data
 public class UserDto {
     private Long id;

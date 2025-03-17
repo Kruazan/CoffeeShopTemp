@@ -2,6 +2,7 @@ package com.example.coffeeshop.dto;
 
 import lombok.Data;
 
+/** User Dto. */
 @Data
 public class DisplayUserDto {
     private Long id;
