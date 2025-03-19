@@ -12,26 +12,32 @@ import com.example.coffeeshop.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /** Service. */
 @Service
+@Slf4j
 public class OrderService {
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
     private final CoffeeRepository coffeeRepository;
+    private final Map<String, List<DisplayOrderDto>> orderFilterCache;
 
     /** Constructor. */
     @Autowired
-    public OrderService(OrderRepository orderRepository, UserRepository userRepository, OrderMapper orderMapper, CoffeeRepository coffeeRepository) {
+    public OrderService(OrderRepository orderRepository, UserRepository userRepository, OrderMapper orderMapper,
+                        CoffeeRepository coffeeRepository, Map<String, List<DisplayOrderDto>> orderFilterCache) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.orderMapper = orderMapper;
         this.coffeeRepository = coffeeRepository;
+        this.orderFilterCache = orderFilterCache;
     }
 
     /** Create order. */
@@ -55,15 +61,27 @@ public class OrderService {
         order.setCoffees(coffees);
 
         Order savedOrder = orderRepository.save(order);
+        DisplayOrderDto savedDto = orderMapper.toDisplayDto(savedOrder);
 
-        return orderMapper.toDisplayDto(savedOrder);
+        log.info("[CACHE]: New order created. Clearing affected cache for user phoneNumber={}", user.getPhoneNumber());
+        clearCacheForValue(user.getPhoneNumber());
+
+        return savedDto;
     }
 
     /** Delete order. */
     @Transactional
     public boolean deleteOrder(Long id) {
-        if (orderRepository.existsById(id)) {
+        Optional<Order> orderOpt = orderRepository.findById(id);
+        if (orderOpt.isPresent()) {
+            Order order = orderOpt.get();
+            String phoneNumber = order.getUser().getPhoneNumber();
+
             orderRepository.deleteById(id);
+
+            log.info("[CACHE]: Order deleted (ID={}). Clearing affected cache for user phoneNumber={}", id, phoneNumber);
+            clearCacheForValue(phoneNumber);
+
             return true;
         }
         return false; // Заказ с таким ID не найден
@@ -79,5 +97,32 @@ public class OrderService {
     public List<DisplayOrderDto> getOrdersByUserId(Long userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
         return orderMapper.toDisplayDto(orders);
+    }
+
+    /** Filter by user. */
+    public List<DisplayOrderDto> filterCarsByBrand(String phoneNumber) {
+        if (orderFilterCache.containsKey(phoneNumber)) {
+            log.info("[CACHE]: Cache hit for filter: brand='{}'", phoneNumber);
+            return orderFilterCache.get(phoneNumber);
+        }
+
+        log.info("[CACHE]: Cache miss for filter: brand='{}'. Querying DB.", phoneNumber);
+
+        List<DisplayOrderDto> filteredOrders = orderRepository.findAllByUserPhoneNumber(phoneNumber)
+                .stream()
+                .map(orderMapper::toDisplayDto)
+                .toList();
+
+        orderFilterCache.put(phoneNumber, filteredOrders);
+        log.info("[CACHE]: Cache populated for filter: brand='{}'", phoneNumber);
+
+        return filteredOrders;
+    }
+
+    /** Очистка кэша по номеру телефона юзера. */
+    private void clearCacheForValue(String phoneNumber) {
+        if (phoneNumber != null) {
+            orderFilterCache.remove(phoneNumber);
+        }
     }
 }

@@ -17,7 +17,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-
 /** User model. */
 @Entity
 @Table(name = "users")
