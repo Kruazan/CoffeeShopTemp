@@ -31,8 +31,8 @@ public class LogService {
         // Чтение строк из файла
         List<String> lines = Files.readAllLines(logFilePath);
 
-        // Создаем временный файл
-        Path tempFile = Files.createTempFile("logs-" + logDate, ".log");
+        Path tempDir = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "logsafe");
+        Path tempFile = Files.createTempFile(tempDir, "logs-" + logDate, ".log");
 
         // Записываем содержимое в новый файл
         Files.write(tempFile, lines);
