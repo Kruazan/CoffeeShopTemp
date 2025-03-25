@@ -19,7 +19,7 @@ public class CacheConfig {
 
             @Override
             protected boolean removeEldestEntry(Map.Entry<String, List<DisplayOrderDto>> eldest) {
-                return size() > MAX_ENTRIES; // Удаляем самый старый элемент, если размер больше 10
+                return size() > MAX_ENTRIES;
             }
         };
     }

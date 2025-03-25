@@ -14,8 +14,4 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     /** JPQL. */
     @Query("SELECT o FROM Order o WHERE o.user.phoneNumber = :phoneNumber")
     List<Order> findAllByUserPhoneNumber(@Param("phoneNumber") String phoneNumber);
-
-    /** @Query(value = "SELECT o.* FROM orders o JOIN users u ON o.user_id = u.id WHERE u.phone_number = :phoneNumber", nativeQuery = true)
-        List<Order> findAllByUserPhoneNumberNative(@Param("phoneNumber") String phoneNumber); */
-
 }
