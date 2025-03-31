@@ -1,6 +1,7 @@
 package com.example.coffeeshop.controller;
 
 import com.example.coffeeshop.dto.CoffeeDto;
+import com.example.coffeeshop.dto.CoffeeUpdateDto;
 import com.example.coffeeshop.service.CoffeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -61,15 +62,15 @@ public class CoffeeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCoffee);
     }
 
-    /** Update coffee. */
-    @Operation(summary = "Обновить данные кофе")
+    /**Da. */
     @PatchMapping("/{id}")
     public ResponseEntity<CoffeeDto> updateCoffee(
             @Parameter(description = "ID кофе") @PathVariable Long id,
-            @Valid @RequestBody CoffeeDto coffeeDto) {
+            @RequestBody CoffeeUpdateDto coffeeDto) {
         CoffeeDto updatedCoffee = coffeeService.updateCoffee(id, coffeeDto);
-        return updatedCoffee != null ? ResponseEntity.ok(updatedCoffee) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.ok(updatedCoffee);
     }
+
 
     /** Delete coffee. */
     @Operation(summary = "Удалить кофе по ID")

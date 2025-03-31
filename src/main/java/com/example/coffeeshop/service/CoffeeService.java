@@ -1,6 +1,7 @@
 package com.example.coffeeshop.service;
 
 import com.example.coffeeshop.dto.CoffeeDto;
+import com.example.coffeeshop.dto.CoffeeUpdateDto;
 import com.example.coffeeshop.mapper.CoffeeMapper;
 import com.example.coffeeshop.model.Coffee;
 import com.example.coffeeshop.model.Order;
@@ -60,24 +61,36 @@ public class CoffeeService {
         return coffeeMapper.toDto(coffeeRepository.save(coffee));
     }
 
-    /** Update coffee info. */
+    /** Update coffee. */
     @Transactional
-    public CoffeeDto updateCoffee(Long id, CoffeeDto coffeeDto) {
+    public CoffeeDto updateCoffee(Long id, CoffeeUpdateDto coffeeDto) {
         return coffeeRepository.findById(id)
                 .map(coffee -> {
-                    if (coffeeDto.getName() != null) {
+                    boolean updated = false;
+
+                    if (coffeeDto.getName() != null && !coffeeDto.getName().isBlank()) {
                         coffee.setName(coffeeDto.getName());
+                        updated = true;
                     }
-                    if (coffeeDto.getType() != null) {
+                    if (coffeeDto.getType() != null && !coffeeDto.getType().isBlank()) {
                         coffee.setType(coffeeDto.getType());
+                        updated = true;
                     }
-                    if (coffeeDto.getPrice() != 0) {
+                    if (coffeeDto.getPrice() != null && coffeeDto.getPrice() != 0) {
                         coffee.setPrice(coffeeDto.getPrice());
+                        updated = true;
                     }
+
+                    if (!updated) {
+                        throw new IllegalArgumentException("Не передано ни одного корректного поля для обновления");
+                    }
+
                     return coffeeMapper.toDto(coffeeRepository.save(coffee));
                 })
-                .orElse(null); // Можно заменить на выброс исключения, если кофе не найден
+                .orElseThrow(() -> new IllegalArgumentException("Кофе с ID " + id + " не найден"));
     }
+
+
 
     /** Delete coffee. */
     @Transactional

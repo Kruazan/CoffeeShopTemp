@@ -1,6 +1,7 @@
 package com.example.coffeeshop.controller;
 
 import com.example.coffeeshop.dto.UserDto;
+import com.example.coffeeshop.dto.UserUpdateDto;
 import com.example.coffeeshop.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -75,9 +76,8 @@ public class UserController {
         @ApiResponse(responseCode = "404", description = "Пользователь не найден")
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserDto userDto) {
-        UserDto updatedUser = userService.updateUser(id, userDto);
-        return updatedUser != null ? ResponseEntity.ok(updatedUser) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateDto userUpdateDto) {
+        return ResponseEntity.ok(userService.updateUser(id, userUpdateDto));
     }
 
     /** Delete user. */

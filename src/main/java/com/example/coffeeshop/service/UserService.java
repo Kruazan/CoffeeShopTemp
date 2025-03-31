@@ -1,6 +1,9 @@
 package com.example.coffeeshop.service;
 
 import com.example.coffeeshop.dto.UserDto;
+import com.example.coffeeshop.dto.UserUpdateDto;
+import com.example.coffeeshop.exception.PasswordHashingException;
+import com.example.coffeeshop.exception.UserUpdateException;
 import com.example.coffeeshop.mapper.UserMapper;
 import com.example.coffeeshop.model.Coffee;
 import com.example.coffeeshop.model.User;
@@ -53,22 +56,35 @@ public class UserService {
 
     /** Update user. */
     @Transactional
-    public UserDto updateUser(Long id, UserDto userDto) {
+    public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         return userRepository.findById(id)
                 .map(user -> {
-                    if (userDto.getPhoneNumber() != null) {
-                        user.setPhoneNumber(userDto.getPhoneNumber());
+                    if (userUpdateDto.getPhoneNumber() != null) {
+                        if (userUpdateDto.getPhoneNumber().isBlank()) {
+                            throw new UserUpdateException("Номер телефона не может быть пустым.");
+                        }
+                        user.setPhoneNumber(userUpdateDto.getPhoneNumber());
                     }
-                    if (userDto.getName() != null) {
-                        user.setName(userDto.getName());
+                    if (userUpdateDto.getName() != null) {
+                        if (userUpdateDto.getName().isBlank()) {
+                            throw new UserUpdateException("Имя не может быть пустым.");
+                        }
+                        user.setName(userUpdateDto.getName());
                     }
-                    if (userDto.getPasswordHash() != null) {
-                        user.setPassword(userDto.getPasswordHash());
+                    if (userUpdateDto.getPasswordHash() != null) {
+                        try {
+                            user.setPassword(hashPassword(userUpdateDto.getPasswordHash()));
+                        } catch (NoSuchAlgorithmException e) {
+                            throw new PasswordHashingException("Ошибка хеширования пароля", e);
+                        }
                     }
                     return userMapper.toDto(userRepository.save(user));
                 })
-                .orElse(null); // Либо кинь исключение, если юзера нет
+                .orElseThrow(() -> new UserUpdateException("Пользователь с ID " + id + " не найден."));
     }
+
+
+
 
 
     /** Delete user. */
