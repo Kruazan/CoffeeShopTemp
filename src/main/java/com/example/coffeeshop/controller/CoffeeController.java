@@ -79,4 +79,17 @@ public class CoffeeController {
             @Parameter(description = "ID кофе") @PathVariable @Min(1) Long id) {
         return coffeeService.deleteCoffee(id) ? ResponseEntity.noContent().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    /**Bulk operation.*/
+    @Operation(summary = "Создать несколько новых кофе")
+    @PostMapping("/bulk")
+    public ResponseEntity<List<CoffeeDto>> createCoffeesBulk(@Valid @RequestBody List<CoffeeDto> coffeeDtos) {
+        // Используем Stream API и лямбда-выражения для обработки списка
+        @SuppressWarnings("all")
+        List<CoffeeDto> createdCoffees = coffeeDtos.stream()
+                .map(coffeeDto -> coffeeService.createCoffee(coffeeDto))  // Создаем кофе для каждого объекта
+                .toList();  // Собираем результат в новый список
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCoffees);
+    }
 }

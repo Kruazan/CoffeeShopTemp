@@ -83,10 +83,6 @@ public class UserService {
                 .orElseThrow(() -> new UserUpdateException("Пользователь с ID " + id + " не найден."));
     }
 
-
-
-
-
     /** Delete user. */
     @Transactional
     public boolean deleteUser(Long id) {
@@ -143,7 +139,7 @@ public class UserService {
     }
 
     /** Hash password. */
-    private String hashPassword(String password) throws NoSuchAlgorithmException {
+    public String hashPassword(String password) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256"); // используем SHA-256
         byte[] hashBytes = digest.digest(password.getBytes());
         StringBuilder hexString = new StringBuilder();
