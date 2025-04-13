@@ -291,4 +291,78 @@ class UserServiceTest {
         assertFalse(result.isPresent(), "Результат должен быть empty");
     }
 
+    @Test
+    void testAddCoffeeToFavorites_ShouldThrowException_WhenCoffeeNotFound() {
+        Long userId = 1L;
+        Long coffeeId = 1L;
+
+        User user = new User();
+        user.setId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(coffeeRepository.findById(coffeeId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.addCoffeeToFavorites(userId, coffeeId),
+                "Метод должен выбросить исключение, если кофе не найден");
+    }
+
+    @Test
+    void testAddCoffeeToFavorites_ShouldNotAdd_WhenAlreadyInFavorites() {
+        Long userId = 1L;
+        Long coffeeId = 1L;
+
+        Coffee coffee = new Coffee();
+        coffee.setId(coffeeId);
+
+        User user = new User();
+        user.setId(userId);
+        user.getFavoriteCoffees().add(coffee); // уже в избранном
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(coffeeRepository.findById(coffeeId)).thenReturn(Optional.of(coffee));
+
+        userService.addCoffeeToFavorites(userId, coffeeId);
+
+        // не вызывается save, потому что ничего не добавлено
+        verify(userRepository, never()).save(user);
+    }
+
+    @Test
+    void testRemoveCoffeeFromFavorites_ShouldThrowException_WhenCoffeeNotFound() {
+        Long userId = 1L;
+        Long coffeeId = 1L;
+
+        User user = new User();
+        user.setId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(coffeeRepository.findById(coffeeId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.removeCoffeeFromFavorites(userId, coffeeId),
+                "Метод должен выбросить исключение, если кофе не найден");
+    }
+
+    @Test
+    void testRemoveCoffeeFromFavorites_ShouldNotRemove_WhenNotInFavorites() {
+        Long userId = 1L;
+        Long coffeeId = 1L;
+
+        Coffee coffee = new Coffee();
+        coffee.setId(coffeeId);
+
+        User user = new User();
+        user.setId(userId);
+        // кофе не в избранном
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(coffeeRepository.findById(coffeeId)).thenReturn(Optional.of(coffee));
+
+        userService.removeCoffeeFromFavorites(userId, coffeeId);
+
+        // не вызывается save, потому что ничего не удалено
+        verify(userRepository, never()).save(user);
+    }
+
 }

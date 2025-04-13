@@ -71,7 +71,6 @@ public class CoffeeController {
         return ResponseEntity.ok(updatedCoffee);
     }
 
-
     /** Delete coffee. */
     @Operation(summary = "Удалить кофе по ID")
     @DeleteMapping("/{id}")

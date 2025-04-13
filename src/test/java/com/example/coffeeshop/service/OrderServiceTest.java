@@ -264,4 +264,43 @@ class OrderServiceTest {
         // Assert: Проверка, что результат пришел из кэша
         assertSame(cachedOrders, result);
     }
+
+    @Test
+    void testCreateOrder_NullCoffeeList_ShouldThrowException() {
+        CreateOrderDto dto = new CreateOrderDto();
+        dto.setUserId(1L);
+        dto.setCoffeesIds(null);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(new User()));
+
+        assertThrows(EntityNotFoundException.class, () -> orderService.createOrder(dto));
+    }
+
+    @Test
+    void testFilterCarsByBrand_CacheMiss_ShouldQueryDBAndCache() {
+        String phoneNumber = "1234567890";
+
+        Order order = new Order();
+        User user = new User();
+        user.setPhoneNumber(phoneNumber);
+        order.setUser(user);
+
+        DisplayOrderDto dto = new DisplayOrderDto();
+
+        when(orderFilterCache.containsKey(phoneNumber)).thenReturn(false);
+        when(orderRepository.findAllByUserPhoneNumber(phoneNumber)).thenReturn(List.of(order));
+        when(orderMapper.toDisplayDto(order)).thenReturn(dto);
+
+        List<DisplayOrderDto> result = orderService.filterCarsByBrand(phoneNumber);
+
+        assertEquals(1, result.size());
+        verify(orderFilterCache).put(eq(phoneNumber), any());
+    }
+
+    @Test
+    void testClearCacheForValue_WithNull_ShouldDoNothing() {
+        orderService.clearCacheForValue(null);
+        verify(orderFilterCache, never()).remove(any());
+    }
+
 }

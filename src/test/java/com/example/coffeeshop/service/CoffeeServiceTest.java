@@ -203,42 +203,46 @@ class CoffeeServiceTest {
 
     @Test
     void testDeleteCoffee_Success() {
-        // Подготовка данных
+        // Подготовка кофе
         Coffee coffee = new Coffee();
         coffee.setId(1L);
         coffee.setName("Latte");
 
-        // Инициализация заказов для кофе
+        // Подготовка заказа, в котором есть кофе
         Order order = new Order();
         order.setId(1L);
-        order.setCoffees(new ArrayList<>(List.of(coffee)));  // Связываем заказ с кофе
+        order.setCoffees(new ArrayList<>(List.of(coffee)));
 
-        coffee.setOrders(new ArrayList<>(List.of(order)));    // Убедитесь, что заказы не null
+        // Устанавливаем связь кофе → заказы
+        coffee.setOrders(new ArrayList<>(List.of(order)));
 
+        // Подготовка пользователя с кофе в избранном
         User user = new User();
         user.setFavoriteCoffees(new ArrayList<>(List.of(coffee)));
 
         // Мокаем репозитории и сервисы
-        when(coffeeRepository.existsById(anyLong())).thenReturn(true);
-        when(coffeeRepository.findById(anyLong())).thenReturn(Optional.of(coffee));
-        when(orderRepository.findAll()).thenReturn(List.of(order));
+        when(coffeeRepository.existsById(1L)).thenReturn(true);
+        when(coffeeRepository.findById(1L)).thenReturn(Optional.of(coffee));
+        when(orderService.deleteOrder(1L)).thenReturn(true);
         when(userRepository.findAll()).thenReturn(List.of(user));
-
-        // Мокаем deleteOrder(), чтобы он возвращал true
-        when(orderService.deleteOrder(anyLong())).thenReturn(true);
 
         // Вызов метода
         boolean result = coffeeService.deleteCoffee(1L);
 
-        // Проверка, что удаление прошло успешно
+        // Проверка результата
         assertTrue(result);
 
-        // Проверяем, что deleteOrder() был вызван для заказа
-        verify(orderService).deleteOrder(anyLong());
+        // Убедиться, что кофе удалён из заказа
+        assertTrue(order.getCoffees().isEmpty(), "Кофе должен быть удалён из заказа");
+
+        // Убедиться, что кофе удалён из избранного
+        assertFalse(user.getFavoriteCoffees().contains(coffee), "Кофе должен быть удалён из избранного");
+
+        // Проверка вызовов
+        verify(orderService).deleteOrder(1L); // заказ удаляется, так как он пустой
+        verify(userRepository).save(user); // пользователь сохранён после удаления кофе из избранного
+        verify(coffeeRepository).deleteById(1L); // кофе удалён
     }
-
-
-
 
 
     @Test
@@ -252,4 +256,70 @@ class CoffeeServiceTest {
         // Проверка результатов
         assertFalse(result);
     }
+
+    @Test
+    void testUpdateCoffee_TypeOnly() {
+        Coffee coffee = new Coffee();
+        coffee.setId(1L);
+        coffee.setType("OldType");
+
+        CoffeeUpdateDto updateDto = new CoffeeUpdateDto();
+        updateDto.setType("NewType");
+
+        CoffeeDto coffeeDto = new CoffeeDto();
+        coffeeDto.setId(1L);
+        coffeeDto.setType("NewType");
+
+        when(coffeeRepository.findById(1L)).thenReturn(Optional.of(coffee));
+        when(coffeeRepository.save(any())).thenReturn(coffee);
+        when(coffeeMapper.toDto(coffee)).thenReturn(coffeeDto);
+
+        CoffeeDto result = coffeeService.updateCoffee(1L, updateDto);
+
+        assertEquals("NewType", result.getType());
+    }
+
+    @Test
+    void testUpdateCoffee_PriceOnly() {
+        Coffee coffee = new Coffee();
+        coffee.setId(1L);
+        coffee.setPrice(10.0);
+
+        CoffeeUpdateDto updateDto = new CoffeeUpdateDto();
+        updateDto.setPrice(20.0);
+
+        CoffeeDto coffeeDto = new CoffeeDto();
+        coffeeDto.setId(1L);
+        coffeeDto.setPrice(20.0);
+
+        when(coffeeRepository.findById(1L)).thenReturn(Optional.of(coffee));
+        when(coffeeRepository.save(any())).thenReturn(coffee);
+        when(coffeeMapper.toDto(coffee)).thenReturn(coffeeDto);
+
+        CoffeeDto result = coffeeService.updateCoffee(1L, updateDto);
+
+        assertEquals(20.0, result.getPrice());
+    }
+
+    @Test
+    void testUpdateCoffee_EmptyDto_ThrowsException() {
+        Coffee coffee = new Coffee();
+        coffee.setId(1L);
+        coffee.setName("Name");
+        coffee.setType("Type");
+        coffee.setPrice(10.0);
+
+        CoffeeUpdateDto updateDto = new CoffeeUpdateDto(); // все поля пустые
+
+        when(coffeeRepository.findById(1L)).thenReturn(Optional.of(coffee));
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> coffeeService.updateCoffee(1L, updateDto)
+        );
+
+        assertEquals("Не передано ни одного корректного поля для обновления", exception.getMessage());
+    }
+
+
 }

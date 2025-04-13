@@ -120,9 +120,10 @@ public class OrderService {
     }
 
     /** Очистка кэша по номеру телефона юзера. */
-    private void clearCacheForValue(String phoneNumber) {
+    protected void clearCacheForValue(String phoneNumber) {
         if (phoneNumber != null) {
             orderFilterCache.remove(phoneNumber);
         }
     }
+
 }
