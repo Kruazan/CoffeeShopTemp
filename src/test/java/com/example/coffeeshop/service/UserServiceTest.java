@@ -205,14 +205,11 @@ class UserServiceTest {
         coffee.setId(coffeeId);
         user.getFavoriteCoffees().add(coffee);  // Кофе уже в избранном
 
-        // Мокаем поведение репозитория
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(coffeeRepository.findById(coffeeId)).thenReturn(Optional.of(coffee));
 
-        // Вызов метода
         userService.removeCoffeeFromFavorites(userId, coffeeId);
 
-        // Проверка, что кофе удалено
         assertFalse(user.getFavoriteCoffees().contains(coffee), "Кофе должно быть удалено из избранного");
     }
 
@@ -221,17 +218,14 @@ class UserServiceTest {
         Long userId = 1L;
         Long coffeeId = 1L;
 
-        // Мокаем поведение репозитория
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // Проверка на исключение
         assertThrows(IllegalArgumentException.class, () -> userService.removeCoffeeFromFavorites(userId, coffeeId),
                 "Метод должен выбросить исключение, если пользователь не найден");
     }
 
     @Test
     void testGetAllUsers_ShouldReturnListOfUserDto() {
-        // Подготовка данных
         User user = new User();
         user.setId(1L);
         user.setName("John Doe");
@@ -240,14 +234,11 @@ class UserServiceTest {
         userDto.setId(1L);
         userDto.setName("John Doe");
 
-        // Мокаем поведение репозитория
         when(userRepository.findAll()).thenReturn(List.of(user));
         when(userMapper.toDto(user)).thenReturn(userDto);
 
-        // Вызов метода
         List<UserDto> result = userService.getAllUsers();
 
-        // Проверка результатов
         assertNotNull(result, "Результат не должен быть null");
         assertEquals(1, result.size(), "Размер списка должен быть 1");
         assertEquals("John Doe", result.get(0).getName(), "Имя должно быть John Doe");
@@ -265,14 +256,11 @@ class UserServiceTest {
         userDto.setId(userId);
         userDto.setName("John Doe");
 
-        // Мокаем поведение репозитория
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userMapper.toDto(user)).thenReturn(userDto);
 
-        // Вызов метода
         Optional<UserDto> result = userService.getUserById(userId);
 
-        // Проверка результатов
         assertTrue(result.isPresent(), "Результат должен быть present");
         assertEquals("John Doe", result.get().getName(), "Имя должно быть John Doe");
     }
@@ -281,13 +269,10 @@ class UserServiceTest {
     void testGetUserById_ShouldReturnEmpty_WhenUserNotFound() {
         Long userId = 1L;
 
-        // Мокаем поведение репозитория
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // Вызов метода
         Optional<UserDto> result = userService.getUserById(userId);
 
-        // Проверка результатов
         assertFalse(result.isPresent(), "Результат должен быть empty");
     }
 
@@ -317,14 +302,13 @@ class UserServiceTest {
 
         User user = new User();
         user.setId(userId);
-        user.getFavoriteCoffees().add(coffee); // уже в избранном
+        user.getFavoriteCoffees().add(coffee);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(coffeeRepository.findById(coffeeId)).thenReturn(Optional.of(coffee));
 
         userService.addCoffeeToFavorites(userId, coffeeId);
 
-        // не вызывается save, потому что ничего не добавлено
         verify(userRepository, never()).save(user);
     }
 
@@ -354,14 +338,12 @@ class UserServiceTest {
 
         User user = new User();
         user.setId(userId);
-        // кофе не в избранном
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(coffeeRepository.findById(coffeeId)).thenReturn(Optional.of(coffee));
 
         userService.removeCoffeeFromFavorites(userId, coffeeId);
 
-        // не вызывается save, потому что ничего не удалено
         verify(userRepository, never()).save(user);
     }
 

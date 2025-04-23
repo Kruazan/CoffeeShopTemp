@@ -1,5 +1,6 @@
 package com.example.coffeeshop.service;
 
+import com.example.coffeeshop.model.LogRequestInfo;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,11 +10,44 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /** Service. */
 @Service
 public class LogService {
+
+    private final ConcurrentMap<String, LogRequestInfo> requestStore = new ConcurrentHashMap<>();
+    private final LogTaskService taskService;
+
+    /**Service.*/
+    public LogService(LogTaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    /** Создание лог-запроса. */
+    public String createAsyncLog(String date) {
+        String id = UUID.randomUUID().toString();
+        requestStore.put(id, new LogRequestInfo(id, date, LogRequestInfo.Status.PENDING, null, null));
+
+        // Асинхронный запуск через отдельный бин
+        taskService.generateLogFileAsync(id, date, requestStore);
+        return id;
+    }
+
+    /**GetStatus.*/
+    public LogRequestInfo getStatus(String id) {
+        return requestStore.get(id);
+    }
+
+    /**GetFile.*/
+    public File getReadyFile(String id) {
+        LogRequestInfo info = requestStore.get(id);
+        return (info != null && info.getStatus() == LogRequestInfo.Status.DONE) ? info.getFile() : null;
+    }
 
     /** Get log file. */
     public File getLogFile(String date) throws IOException {
