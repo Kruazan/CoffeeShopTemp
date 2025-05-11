@@ -1,35 +1,32 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:15
-    restart: always  # Важно для Render (перезапуск при падении)
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    # volumes:  # Не работает на Render без Persistent Disk
-    #   - db_data:/var/lib/postgresql/data
-
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    depends_on:
-      - db
     restart: always
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      # Другие переменные Spring Boot, если нужны
+      # Настройки PostgreSQL (внутри контейнера)
+      POSTGRES_DB: ${POSTGRES_DB:-coffeeshop}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    depends_on:
-      - app
-    restart: always
+      # Настройки Spring Boot
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${POSTGRES_DB:-coffeeshop}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      # Другие переменные
+      SERVER_PORT: 8080
     ports:
-      - "3000:80"  # Render сам назначает порт, это можно удалить
+      - "8080:8080"
+    command: >
+      sh -c "
+      echo 'Запуск PostgreSQL...' &&
+      docker-entrypoint.sh postgres &
+      sleep 10 &&  # Ожидание инициализации БД
+      echo 'Запуск Spring Boot...' &&
+      java -jar /app.jar
+      "
