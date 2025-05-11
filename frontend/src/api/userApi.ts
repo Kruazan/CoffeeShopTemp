@@ -1,7 +1,7 @@
 // api/userApi.ts
 import axios from 'axios';
 
-const API_URL = 'http://https://coffeeshoptemp.onrender.com/users';
+const API_URL = 'http://https://coffeeshoptemp.onrender.com/api/users';
 
 export interface UserDto {
     id: number;
