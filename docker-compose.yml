@@ -1,17 +1,15 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:15
-    ports:
-      - '5432:5432'
-    env_file: .env
+    restart: always  # Важно для Render (перезапуск при падении)
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    networks:
-      - wm-network
+    # volumes:  # Не работает на Render без Persistent Disk
+    #   - db_data:/var/lib/postgresql/data
 
   app:
     build:
@@ -19,15 +17,12 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - db
-    ports:
-      - '8080:8080'
-    env_file: .env
+    restart: always
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-    networks:
-      - wm-network
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      # Другие переменные Spring Boot, если нужны
 
   frontend:
     build:
@@ -35,14 +30,6 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - app
+    restart: always
     ports:
-      - '3000:80'
-    networks:
-      - wm-network
-
-volumes:
-  db_data:
-
-networks:
-  wm-network:
-    driver: bridge
+      - "3000:80"  # Render сам назначает порт, это можно удалить
