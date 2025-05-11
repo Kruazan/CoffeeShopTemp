@@ -2,6 +2,8 @@ package com.example.coffeeshop.service;
 
 import com.example.coffeeshop.dto.CoffeeDto;
 import com.example.coffeeshop.dto.CoffeeUpdateDto;
+import com.example.coffeeshop.dto.CoffeeWithOrdersDto;
+import com.example.coffeeshop.dto.OrderInfoDto;
 import com.example.coffeeshop.mapper.CoffeeMapper;
 import com.example.coffeeshop.model.Coffee;
 import com.example.coffeeshop.model.Order;
@@ -9,7 +11,8 @@ import com.example.coffeeshop.model.User;
 import com.example.coffeeshop.repository.CoffeeRepository;
 import com.example.coffeeshop.repository.OrderRepository;
 import com.example.coffeeshop.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,4 +127,25 @@ public class CoffeeService {
         return false; // Кофе с таким ID не найдено
     }
 
+    @Transactional(readOnly = true)
+    public CoffeeWithOrdersDto getCoffeeWithOrders(Long id) {
+        Coffee coffee = coffeeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Coffee not found with id: " + id));
+
+        List<Order> orders = orderRepository.findByCoffeeId(id);
+
+        return new CoffeeWithOrdersDto(
+                coffee.getId(),
+                coffee.getName(),
+                coffee.getType(),
+                coffee.getPrice(),
+                orders.stream()
+                        .map(order -> new OrderInfoDto(
+                                order.getId(),
+                                order.getUser().getName(),
+                                order.getNotes()
+                        ))
+                        .toList()
+        );
+    }
 }

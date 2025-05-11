@@ -1,7 +1,6 @@
 package com.example.coffeeshop.service;
 
-import com.example.coffeeshop.dto.CreateOrderDto;
-import com.example.coffeeshop.dto.DisplayOrderDto;
+import com.example.coffeeshop.dto.*;
 import com.example.coffeeshop.mapper.OrderMapper;
 import com.example.coffeeshop.model.Coffee;
 import com.example.coffeeshop.model.Order;
@@ -10,7 +9,7 @@ import com.example.coffeeshop.repository.CoffeeRepository;
 import com.example.coffeeshop.repository.OrderRepository;
 import com.example.coffeeshop.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +37,12 @@ public class OrderService {
         this.orderMapper = orderMapper;
         this.coffeeRepository = coffeeRepository;
         this.orderFilterCache = orderFilterCache;
+    }
+
+    public List<DisplayOrderDto> getAllOrders() {
+        return orderRepository.findAll().stream()
+                .map(orderMapper::toDisplayDto)
+                .toList();
     }
 
     /** Create order. */
@@ -124,6 +129,26 @@ public class OrderService {
         if (phoneNumber != null) {
             orderFilterCache.remove(phoneNumber);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public OrderWithDetailsDto getOrderWithDetails(Long id) {
+        Order order = orderRepository.findWithDetailsById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
+
+        return new OrderWithDetailsDto(
+                order.getId(),
+                order.getUser().getName(),
+                order.getNotes(),
+                order.getCoffees().stream()
+                        .map(coffee -> new CoffeeInfoDto(
+                                coffee.getId(),
+                                coffee.getName(),
+                                coffee.getType(),
+                                coffee.getPrice()
+                        ))
+                        .toList()
+        );
     }
 
 }

@@ -1,7 +1,6 @@
 package com.example.coffeeshop.service;
 
-import com.example.coffeeshop.dto.UserDto;
-import com.example.coffeeshop.dto.UserUpdateDto;
+import com.example.coffeeshop.dto.*;
 import com.example.coffeeshop.exception.PasswordHashingException;
 import com.example.coffeeshop.exception.UserUpdateException;
 import com.example.coffeeshop.mapper.UserMapper;
@@ -9,7 +8,8 @@ import com.example.coffeeshop.model.Coffee;
 import com.example.coffeeshop.model.User;
 import com.example.coffeeshop.repository.CoffeeRepository;
 import com.example.coffeeshop.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -48,11 +48,28 @@ public class UserService {
     /** Create User. */
     @Transactional
     public UserDto createUser(UserDto userDto) throws NoSuchAlgorithmException {
-        User user = userMapper.toEntity(userDto);
+        // Проверка на пустое имя или номер телефона
+        if (userDto.getPhoneNumber() == null || userDto.getPhoneNumber().isBlank()) {
+            throw new IllegalArgumentException("Номер телефона не может быть пустым.");
+        }
+        if (userDto.getName() == null || userDto.getName().isBlank()) {
+            throw new IllegalArgumentException("Имя не может быть пустым.");
+        }
+
+        // Хеширование пароля
         String hashedPassword = hashPassword(userDto.getPasswordHash());
+
+        // Преобразование из DTO в Entity
+        User user = userMapper.toEntity(userDto);
         user.setPassword(hashedPassword);
-        return userMapper.toDto(userRepository.save(user));
+
+        // Сохранение пользователя в БД
+        User savedUser = userRepository.save(user);
+
+        // Возвращение DTO с данными созданного пользователя
+        return userMapper.toDto(savedUser);
     }
+
 
     /** Update user. */
     @Transactional
@@ -149,4 +166,31 @@ public class UserService {
         return hexString.toString();
     }
 
+
+    @Transactional(readOnly = true)
+    public UserWithRelationsDto getUserWithRelations(Long id) {
+        User user = userRepository.findWithRelationsById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+
+        return new UserWithRelationsDto(
+                user.getId(),
+                user.getName(),
+                user.getPhoneNumber(),
+                user.getFavoriteCoffees().stream()
+                        .map(coffee -> new CoffeeInfoDto(
+                                coffee.getId(),
+                                coffee.getName(),
+                                coffee.getType(),
+                                coffee.getPrice()
+                        ))
+                        .toList(),
+                user.getOrders().stream()
+                        .map(order -> new OrderInfoDto(
+                                order.getId(),
+                                order.getUser().getName(),
+                                order.getNotes()
+                        ))
+                        .toList()
+        );
+    }
 }

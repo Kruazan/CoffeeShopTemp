@@ -2,6 +2,7 @@ package com.example.coffeeshop.controller;
 
 import com.example.coffeeshop.dto.UserDto;
 import com.example.coffeeshop.dto.UserUpdateDto;
+import com.example.coffeeshop.dto.UserWithRelationsDto;
 import com.example.coffeeshop.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,20 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /** Controller. */
 @Tag(name = "Users", description = "Управление пользователями")
 @Validated
 @RestController
 @RequestMapping("/users")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     private final UserService userService;
@@ -117,4 +112,8 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/relations")
+    public ResponseEntity<UserWithRelationsDto> getUserRelations(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserWithRelations(id));
+    }
 }

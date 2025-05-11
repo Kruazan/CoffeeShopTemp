@@ -1,7 +1,9 @@
 package com.example.coffeeshop.controller;
 
+import com.example.coffeeshop.dto.CoffeeDto;
 import com.example.coffeeshop.dto.CreateOrderDto;
 import com.example.coffeeshop.dto.DisplayOrderDto;
+import com.example.coffeeshop.dto.OrderWithDetailsDto;
 import com.example.coffeeshop.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,20 +16,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /** Order controller. */
 @Tag(name = "Orders", description = "Управление заказами")
 @Validated
 @RestController
 @RequestMapping("/orders")
+@CrossOrigin(origins = "http://localhost:3000")
 public class OrderController {
 
     private final OrderService orderService;
@@ -36,6 +32,13 @@ public class OrderController {
     @Autowired
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
+    }
+
+    /** Get all coffees. */
+    @Operation(summary = "Получить список всех заказов")
+    @GetMapping
+    public List<DisplayOrderDto> getAllOrders() {
+        return orderService.getAllOrders();
     }
 
     /** Create order. */
@@ -104,5 +107,10 @@ public class OrderController {
                                                                             String phoneNumber) {
         List<DisplayOrderDto> orders = orderService.filterCarsByBrand(phoneNumber);
         return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/{id}/details")
+    public ResponseEntity<OrderWithDetailsDto> getOrderWithDetails(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.getOrderWithDetails(id));
     }
 }
