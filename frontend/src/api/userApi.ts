@@ -15,7 +15,6 @@ export interface DisplayUserDto {
     name: string;
 }
 
-
 export const getUsers = async (): Promise<UserDto[]> => {
     const response = await axios.get(API_URL);
     return response.data;
