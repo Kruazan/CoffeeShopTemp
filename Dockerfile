@@ -1,27 +1,12 @@
-# Этап сборки
-FROM gradle:8.5-jdk21 AS builder
+FROM node:18-alpine AS builder
 WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
-# Копируем только файлы, необходимые для сборки
-COPY build.gradle.kts ./
-COPY settings.gradle.kts ./
-COPY gradle ./gradle
-COPY gradlew ./
-COPY src ./src
-
-RUN chmod +x gradlew
-# Сборка jar-файла без тестов
-RUN ./gradlew clean build -x test
-
-# Финальный образ
-FROM eclipse-temurin:21-jdk
-WORKDIR /app
-
-# Копируем jar-файл из билдера
-COPY --from=builder /app/build/libs/*.jar app.jar
-
-# Открываем порт 8080
-EXPOSE 8080
-
-# Запуск приложения
-ENTRYPOINT ["java", "-jar", "app.jar"]
+FROM nginx:stable-alpine
+COPY --from=builder /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
