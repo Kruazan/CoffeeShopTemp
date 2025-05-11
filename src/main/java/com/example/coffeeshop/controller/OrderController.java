@@ -1,6 +1,5 @@
 package com.example.coffeeshop.controller;
 
-import com.example.coffeeshop.dto.CoffeeDto;
 import com.example.coffeeshop.dto.CreateOrderDto;
 import com.example.coffeeshop.dto.DisplayOrderDto;
 import com.example.coffeeshop.dto.OrderWithDetailsDto;
