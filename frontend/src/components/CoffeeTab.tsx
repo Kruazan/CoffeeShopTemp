@@ -26,6 +26,7 @@ const CoffeeTab: React.FC<CoffeeTabProps> = ({ showMessage }) => {
         fetchCoffees();
     }, []);
 
+
     const fetchCoffees = async () => {
         setLoading(true);
         try {
