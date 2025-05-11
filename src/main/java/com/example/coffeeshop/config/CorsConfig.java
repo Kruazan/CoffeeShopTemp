@@ -9,7 +9,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://192.168.1.103:3000", "http://localhost:3000") // Замените на ваш фронтенд
+                .allowedOrigins("https://coffeeshoptemp-1.onrender.com", "http://localhost:3000") // Замените на ваш фронтенд
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*")
                 .allowCredentials(true);

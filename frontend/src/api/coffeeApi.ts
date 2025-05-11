@@ -1,7 +1,7 @@
 // api/coffeeApi.ts
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/coffees';
+const API_URL = 'https://coffeeshoptemp.onrender.com/coffees';
 
 export interface CoffeeDto {
     id: number;
