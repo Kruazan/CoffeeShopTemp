@@ -1,12 +1,14 @@
-FROM node:18-alpine AS builder
+# Этап сборки
+FROM gradle:8.5-jdk17 AS builder
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
+COPY build.gradle settings.gradle gradle.properties ./
+COPY gradle ./gradle
+COPY src ./src
+RUN gradle clean build -x test --no-daemon
 
-FROM nginx:stable-alpine
-COPY --from=builder /app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Финальный образ
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY --from=builder /app/build/libs/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
