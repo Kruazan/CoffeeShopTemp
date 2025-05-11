@@ -1,7 +1,7 @@
 // api/orderApi.ts
 import axios from 'axios';
 
-const API_URL = 'https://coffeeshoptemp.onrender.com/api/orders';
+const API_URL = 'https://coffeeshoptemp.onrender.com/orders';
 
 export interface DisplayOrderDto {
     id: number;
