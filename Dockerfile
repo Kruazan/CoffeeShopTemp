@@ -9,6 +9,7 @@ COPY gradle ./gradle
 COPY gradlew ./
 COPY src ./src
 
+RUN chmod +x gradlew
 # Сборка jar-файла без тестов
 RUN ./gradlew clean build -x test
 
