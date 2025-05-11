@@ -1,32 +1,48 @@
-version: '3.8'
-
 services:
+  db:
+    image: postgres:15
+    ports:
+      - '5432:5432'
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - wm-network
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
-    environment:
-      # Настройки PostgreSQL (внутри контейнера)
-      POSTGRES_DB: ${POSTGRES_DB:-coffeeshop}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
-
-      # Настройки Spring Boot
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${POSTGRES_DB:-coffeeshop}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-secret}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-
-      # Другие переменные
-      SERVER_PORT: 8080
+    depends_on:
+      - db
     ports:
-      - "8080:8080"
-    command: >
-      sh -c "
-      echo 'Запуск PostgreSQL...' &&
-      docker-entrypoint.sh postgres &
-      sleep 10 &&  # Ожидание инициализации БД
-      echo 'Запуск Spring Boot...' &&
-      java -jar /app.jar
-      "
+      - '8080:8080'
+    env_file: .env
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    networks:
+      - wm-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - app
+    ports:
+      - '3000:80'
+    networks:
+      - wm-network
+
+volumes:
+  db_data:
+
+networks:
+  wm-network:
+    driver: bridge
